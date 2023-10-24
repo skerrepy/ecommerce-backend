@@ -13,6 +13,7 @@ router.get("/", (req, res) => {
       return res.status(200).json(categories);
     })
     .catch((err) => {
+      console.log(err);
       return res
         .status(404)
         .json({ err_categories: "Soemething wrong happened" });
@@ -43,6 +44,7 @@ router.get("/:id", (req, res) => {
 });
 
 router.post("/", (req, res) => {
+  console.log(req.body);
   // create a new category
   Category.create({
     category_name: req.body.category_name,
@@ -51,6 +53,7 @@ router.post("/", (req, res) => {
       return res.status(200).json(category);
     })
     .catch((err) => {
+      console.log(err);
       return res
         .status(404)
         .json({ err_categories: "Soemething wrong happened" });
@@ -60,12 +63,12 @@ router.post("/", (req, res) => {
 router.put("/:id", (req, res) => {
   Category.update(
     {
-      where: {
-        id: req.params.id,
-      },
+      category_name: req.body.category_name,
     },
     {
-      category_name: req.body.category_name,
+      where: {
+        id: parseInt(req.params.id),
+      },
     }
   )
     .then((affectedRow) => {
@@ -82,25 +85,18 @@ router.put("/:id", (req, res) => {
     });
 });
 
-router.delete("/:id", (req, res) => {
+router.delete("/:id", async (req, res) => {
   // delete a category by its `id` value
-  Category.destory({
-    where: {
-      id: req.params.id,
-    },
-  })
-    .then((numDeleted) => {
-      if (numDeleted > 0) {
-        return res.status(200).json("Category deleted successfully");
-      } else {
-        return res.status(404).json("Category not found");
-      }
-    })
-    .catch((err) => {
-      return res
-        .status(404)
-        .json({ err_categories: "Soemething wrong happened" });
-    });
+  const category = await Category.findOne({ id: req.params.id });
+  console.log(category);
+  try {
+    await category.destroy();
+    return res.status(200).json("Category deleted successfully");
+  } catch (err) {
+    return res
+      .status(404)
+      .json({ err_categories: "Soemething wrong happened" });
+  }
 });
 
 module.exports = router;

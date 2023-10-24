@@ -25,5 +25,6 @@ Category.init(
     modelName: "category",
   }
 );
+// Category.schema('categories')
 
 module.exports = Category;
